@@ -115,34 +115,43 @@ public class ShareFile {
         return result;
     }
     public Uri getURI() {
-
+        Uri result = null;
         final MimeTypeMap mime = MimeTypeMap.getSingleton();
         this.extension = mime.getExtensionFromMimeType(getType());
         final String authority = ((ShareApplication) reactContext.getApplicationContext()).getFileProviderAuthority();
 
         if(this.isBase64File()) {
             String encodedImg = this.uri.getSchemeSpecificPart().substring(this.uri.getSchemeSpecificPart().indexOf(";base64,") + 8);
+            FileOutputStream fos = null;
             try {
                 File dir = new File(Environment.getExternalStorageDirectory(), Environment.DIRECTORY_DOWNLOADS );
                 if (!dir.exists()) {
                     dir.mkdirs();
                 }
                 File file = new File(dir, System.currentTimeMillis() + "." + this.extension);
-                final FileOutputStream fos = new FileOutputStream(file);
+                fos = new FileOutputStream(file);
                 fos.write(Base64.decode(encodedImg, Base64.DEFAULT));
-                fos.flush();
-                fos.close();
-                return FileProvider.getUriForFile(reactContext, authority, file);
+                result = FileProvider.getUriForFile(reactContext, authority, file);
 
             } catch (IOException e) {
                 e.printStackTrace();
             }
+            finally {
+                if(fos != null){
+                    try{
+                        fos.flush();
+                        fos.close();
+                    }catch (Exception e){
+                        e.printStackTrace();
+                    }
+                }
+            }
         } else if(this.isLocalFile()) {
             Uri uri = Uri.parse(this.url);
 
-            return FileProvider.getUriForFile(reactContext, authority, new File(uri.getPath()));
+            result = FileProvider.getUriForFile(reactContext, authority, new File(uri.getPath()));
         }
 
-        return null;
+        return result;
     }
 }
