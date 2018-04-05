@@ -137,11 +137,15 @@ public class ShareFile {
                 e.printStackTrace();
             }
             finally {
-                if(fos != null){
-                    try{
+                if(fos != null) {
+                    try {
                         fos.flush();
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                    try {
                         fos.close();
-                    }catch (Exception e){
+                    } catch (Exception e) {
                         e.printStackTrace();
                     }
                 }
